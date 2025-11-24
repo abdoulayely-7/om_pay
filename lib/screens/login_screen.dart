@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/carousel_image.dart';
 import 'package:go_router/go_router.dart';
-import '../api/api_service.dart';
-import '../config/config.dart';
-import '../services/auth/auth_service.dart';
-import '../dto/request/login_request.dart';
+import '../providers/auth_provider.dart';
 import '../utils/error_messages.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -24,19 +21,10 @@ class _LoginScreenState extends State<LoginScreen> {
   final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
   final _codeController = TextEditingController();
-  final ApiService _api = ApiService(Config.apiBaseUrl);
-  late final AuthService _authService;
-  bool _isLoading = false;
   bool _showCodeField = false;
   String? _identifierError;
   String? _passwordError;
   String? _codeError;
-
-  @override
-  void initState() {
-    super.initState();
-    _authService = AuthService(_api);
-  }
 
   @override
   void dispose() {
@@ -72,29 +60,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (hasError) return;
 
-    setState(() => _isLoading = true);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final success = await authProvider.login(
+      _identifierController.text.trim(),
+      _passwordController.text,
+      code: _showCodeField ? _codeController.text : null,
+    );
 
-    try {
-      final request = LoginRequest(
-        identifier: _identifierController.text.trim(),
-        password: _passwordController.text,
-        code: _showCodeField ? _codeController.text : null,
-      );
-      final response = await _authService.login(request);
-
-      // Sauvegarder le token
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', response.accessToken);
-
-      setState(() => _isLoading = false);
-
+    if (success) {
       if (mounted) {
         context.go('/home');
       }
-    } catch (e) {
-      setState(() => _isLoading = false);
-
-      String errorMessage = ErrorMessages.parseBackendError(e);
+    } else {
+      String errorMessage = authProvider.error ?? 'Erreur de connexion';
 
       if (errorMessage.contains('401') || errorMessage.contains('incorrect')) {
         setState(() => _passwordError = 'Identifiant ou mot de passe incorrect');
@@ -227,10 +205,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 32),
 
                       // Bouton connexion
-                      CustomButton(
-                        text: 'Se connecter',
-                        onPressed: _login,
-                        isLoading: _isLoading,
+                      Consumer<AuthProvider>(
+                        builder: (context, authProvider, child) => CustomButton(
+                          text: 'Se connecter',
+                          onPressed: _login,
+                          isLoading: authProvider.isLoading,
+                        ),
                       ),
 
                       const SizedBox(height: 24),

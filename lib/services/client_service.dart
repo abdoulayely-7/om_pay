@@ -38,10 +38,17 @@ class ClientService {
       token,
     );
 
-    return ApiResponse.fromJson(
+    final response = ApiResponse.fromJson(
       json,
       (data) => TransferResponse.fromJson(data),
     );
+
+    //  LANCER UNE EXCEPTION SI ÉCHEC :
+    if (!response.success) {
+      throw Exception(response.message);
+    }
+
+    return response;
   }
 
   Future<ApiResponse<PaymentResponse>> effectuerPaiement(

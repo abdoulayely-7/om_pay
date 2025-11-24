@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'theme/app_theme.dart';
 import 'router/app_router.dart';
+import 'providers/auth_provider.dart';
+import 'providers/balance_provider.dart';
+import 'providers/transaction_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,11 +17,18 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      title: 'OM Pay',
-      theme: AppTheme.darkTheme,
-      routerConfig: appRouter,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => BalanceProvider()),
+        ChangeNotifierProvider(create: (_) => TransactionProvider()),
+      ],
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        title: 'OM Pay',
+        theme: AppTheme.darkTheme,
+        routerConfig: appRouter,
+      ),
     );
   }
 }

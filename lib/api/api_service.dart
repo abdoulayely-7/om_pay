@@ -20,14 +20,21 @@ class ApiService {
     Map data,
     String token,
   ) async {
+    final url = "$baseUrl$endpoint";
+    print('API Call: POST $url');
+    print('Data: $data');
+
     final response = await http.post(
-      Uri.parse("$baseUrl$endpoint"),
+      Uri.parse(url),
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer $token",
       },
       body: jsonEncode(data),
     );
+
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
 
     return _handleResponse(response);
   }
