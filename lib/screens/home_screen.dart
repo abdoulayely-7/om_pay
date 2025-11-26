@@ -13,6 +13,7 @@ import '../widgets/custom_snackbar.dart';
 import '../providers/auth_provider.dart';
 import '../providers/balance_provider.dart';
 import '../providers/transaction_provider.dart';
+import '../providers/theme_provider.dart';
 import '../dto/response/transaction_response.dart' as tr;
 
 class HomeScreen extends StatefulWidget {
@@ -25,7 +26,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final _numberController = TextEditingController();
   final _amountController = TextEditingController();
-  bool _isDarkMode = true;
   bool _isScannerEnabled = true;
   String _selectedLanguage = 'Français';
 
@@ -219,9 +219,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer3<AuthProvider, BalanceProvider, TransactionProvider>(
+    return Consumer4<AuthProvider, BalanceProvider, TransactionProvider, ThemeProvider>(
       builder:
-          (context, authProvider, balanceProvider, transactionProvider, child) {
+          (context, authProvider, balanceProvider, transactionProvider, themeProvider, child) {
             // Afficher un écran de chargement pendant l'initialisation de l'auth
             if (!authProvider.isInitialized) {
               return const Scaffold(
@@ -233,10 +233,10 @@ class _HomeScreenState extends State<HomeScreen> {
               drawer: CustomDrawer(
                 userName: balanceProvider.userName,
                 userPhone: balanceProvider.userPhone,
-                isDarkMode: _isDarkMode,
+                isDarkMode: themeProvider.isDarkMode,
                 isScannerEnabled: _isScannerEnabled,
                 selectedLanguage: _selectedLanguage,
-                onThemeToggle: () => setState(() => _isDarkMode = !_isDarkMode),
+                onThemeToggle: () => themeProvider.toggleTheme(),
                 onScannerToggle: () =>
                     setState(() => _isScannerEnabled = !_isScannerEnabled),
                 onLanguageChanged: (lang) =>

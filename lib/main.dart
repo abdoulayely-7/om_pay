@@ -6,6 +6,7 @@ import 'router/app_router.dart';
 import 'providers/auth_provider.dart';
 import 'providers/balance_provider.dart';
 import 'providers/transaction_provider.dart';
+import 'providers/theme_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,12 +23,15 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => BalanceProvider()),
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        title: 'OM Pay',
-        theme: AppTheme.darkTheme,
-        routerConfig: appRouter,
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) => MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          title: 'OM Pay',
+          theme: themeProvider.currentTheme,
+          routerConfig: appRouter,
+        ),
       ),
     );
   }

@@ -37,7 +37,7 @@ class _BalanceCardState extends State<BalanceCard> {
         children: [
           // Icône menu en haut à gauche
           Positioned(
-          
+
             child: IconButton(
               icon: const Icon(Icons.menu, color: Colors.white, size: 28),
               onPressed: widget.onMenuTap,
